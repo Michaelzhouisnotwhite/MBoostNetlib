@@ -9,7 +9,7 @@ HttpAsyncClient::HttpAsyncClient(std::shared_ptr<tcp::socket> socket) : socket_(
 }
 
 void HttpAsyncClient::StartRecv() {
-    std::array<char, 100> read_buf;
+    std::array<char, 100> read_buf{};
     asio::async_read(
         *socket_, asio::buffer(read_buf.data(), read_buf.size()),
         [self = shared_from_this(), &read_buf](const boost::system::error_code& error,
@@ -27,6 +27,7 @@ void HttpAsyncClient::HandleReadSome(Vec<char> buf,
         fmt::println("HandleReadSome error: {}", error.message());
         return;
     }
+    fmt::println("HandleReadSome error: {}", error.message());
     assert(bytes_transferred <= buf.size() && "bytes_transferred < buf.size()");
     recv_buf_ = VecDeque<char>(buf.begin(), buf.begin() + bytes_transferred);
     boost::system::error_code ec;
