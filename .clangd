@@ -1,0 +1,55 @@
+Index:
+  StandardLibrary: Yes
+  Background: Build
+
+InlayHints:
+  Designators: false
+
+Diagnostics:
+  UnusedIncludes: None
+  ClangTidy:
+    Add: 
+      - "bugprone-*"
+      - "performance-*"
+      - "modernize-*"
+      - "cert-*"
+      - "clang-analyzer-*"
+      - "concurrency-*"
+      - "misc-*"
+      - "portability-*"
+
+      # - "readability-*"
+    Remove:
+      - misc-unused-parameters
+      - misc-no-recursion
+      - modernize-use-trailing-return-type
+      - readability-identifier-length
+      - misc-non-private-member-variables-in-classes
+      - modernize-use-nodiscard
+      - bugprone-easily-swappable-parameters
+      - modernize-avoid-c-arrays
+
+
+Hover:
+  ShowAKA: true
+
+CompileFlags:
+  Add:
+    - -Wno-unused-variable
+    - -Wno-infinite-recursion
+    - -Wno-array-bounds
+    - -Werror=implicit-function-declaration
+    - -Wshadow
+    - -Wno-shadow-field-in-constructor-modified
+    - -Wno-shadow-ivar
+    - -Wuninitialized
+    - -Wunused-label
+    - -Wunused-lambda-capture
+    # - --target=x86_64-w64-windows-gnu
+    # - -Wall
+    # - xc++
+    - -std=gnu++20
+    # - -v
+    # ["-xc++", "-E", "-v", "-Wall"]
+  # CompilationDatabase: "./vscode"
+

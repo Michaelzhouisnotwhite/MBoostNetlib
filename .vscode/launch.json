@@ -1,0 +1,94 @@
+{
+    // 使用 IntelliSense 了解相关属性。 
+    // 悬停以查看现有属性的描述。
+    // 欲了解更多信息，请访问: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "(Windows) 启动",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "${command:cmake.getLaunchTargetPath}",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${fileDirname}",
+            "environment": [],
+            "console": "internalConsole"
+        },
+        // {
+        //     "name": "vsdbg",
+        //     "type": "cppvsdbg",
+        //     "request": "launch",
+        //     "program": "${command:cmake.getLaunchTargetPath}",
+        //     "args": [],
+        //     "stopAtEntry": false,
+        //     "cwd": "${fileDirname}",
+        //     "environment": [  {
+        //         // add the directory where our target was built to the PATHs
+        //         // it gets resolved by CMake Tools:
+        //         "name": "PATH",
+        //         "value": "${env:PATH}:${command:cmake.getLaunchTargetDirectory}"
+        //     },],
+        //     "console": "integratedTerminal",
+        //     "preLaunchTask": "build all",
+        
+
+        // },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "lldb",
+            "program": "${command:cmake.getLaunchTargetPath}",
+            "args": [],
+            "cwd": "${workspaceFolder}",
+            "preLaunchTask": "build target",
+            "stdio": null,
+            
+        },
+        {
+            "name": "gdb",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${command:cmake.getLaunchTargetPath}",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "filterStderr": true,
+            "environment": [
+                {
+                    // add the directory where our target was built to the PATHs
+                    // it gets resolved by CMake Tools:
+                    "name": "PATH",
+                    "value": "${env:PATH}:${command:cmake.getLaunchTargetDirectory}"
+                },
+            ],
+            "externalConsole": false,
+            // "avoidWindowsConsoleRedirection": true,
+            "MIMode": "gdb",
+            // "logging": {
+            //     "moduleLoad": false,
+            //     "engineLogging": false,
+            //     "trace": false,
+            //     "exceptions": true,
+            //     "traceResponse": false,
+            //     "programOutput": true
+            // },
+            "internalConsoleOptions": "neverOpen",
+            
+            "setupCommands": [
+                {
+                    "description": "为 gdb 启用整齐打印",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                },
+                {
+                    "description": "将反汇编风格设置为 Intel",
+                    "text": "-gdb-set disassembly-flavor intel",
+                    "ignoreFailures": true
+                }
+            ],
+            "preLaunchTask": "build target",
+            // "miDebuggerPath": "C:\\tools\\msys64\\mingw64\\bin\\gdb.exe"
+        },
+    ]
+}
