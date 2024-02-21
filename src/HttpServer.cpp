@@ -47,7 +47,9 @@ void HttpAsyncClient::HandleReadSome(const boost::system::error_code& error,
     }
     if (req_.content_length().has_value()) {
       // TODO: do something
-      if (bytes_putted != recv_buffer_.ByteSize()) {
+      _front = recv_buffer_.Front(std::numeric_limits<u64>::max());
+      bytes_putted = req_.put(asio::buffer(_front.data(), _front.size()), ec);
+      if (bytes_putted != _front.size()) {
         return;
       }
     } else {
@@ -56,8 +58,9 @@ void HttpAsyncClient::HandleReadSome(const boost::system::error_code& error,
     }
   }
   if (req_.is_done()) {
-    fmt::println("body: {}\n", req_.get().body());
+    fmt::println("body: -----------\n{}", req_.get().body());
     // do other things
+    return;
   }
   StartRecv();
 }

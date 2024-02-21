@@ -2,8 +2,8 @@
 // Created by tssh on 24-2-21.
 //
 
-#ifndef BUFFERS_H
-#define BUFFERS_H
+#ifndef SRC_BUFFERS
+#define SRC_BUFFERS
 #include <toy/type.h>
 
 #include <boost/asio/buffer.hpp>
@@ -30,6 +30,7 @@ public:
   auto end() -> typename Vec<ValueType>::iterator {
     return storage_.end();
   }
+
   auto AsioBuffer() {
     return boost::asio::buffer(&storage_[WriteIdx()], RemainByteSize());
   }
@@ -60,6 +61,7 @@ private:
     if (increment == storage_.size()) {
       fmt::println("buffer overflow");
     }
+    return increment;
   }
   StorageType storage_;
   ValueType stop_value_;
@@ -80,19 +82,19 @@ auto VecBuffer<ValueType>::ByteSize() const -> u64 {
 template <typename ValueType>
 auto VecBuffer<ValueType>::PopFront(u64 size) -> StorageType {
   if (size >= storage_.size()) {
-    auto res = storage_;
+    auto res = StorageType(storage_.begin(), storage_.begin() + WriteIdx());
     std::fill(storage_.begin(), storage_.end(), stop_value_);
     return res;
   }
   auto res = Vec<ValueType>(storage_.begin(), storage_.begin() + size);
-  storage_ = res;
+  storage_ = Vec<ValueType>(storage_.begin() + size, storage_.end());
   storage_.resize(storage_size_, stop_value_);
   return res;
 }
 template <typename ValueType>
 auto VecBuffer<ValueType>::Front(u64 size) -> StorageType {
   if (size >= storage_.size()) {
-    return storage_;
+    return {storage_.begin(), storage_.begin() + WriteIdx()};
   }
   static auto last_res = Vec<ValueType>{};
   auto cur_res = Vec<ValueType>(storage_.begin(), storage_.begin() + size);
@@ -122,4 +124,4 @@ auto VecBuffer<ValueType>::PrettyStr() const -> String {
 }
 }  // namespace mhttplib
 
-#endif  // BUFFERS_H
+#endif /* SRC_BUFFERS */
