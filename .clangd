@@ -48,7 +48,7 @@ CompileFlags:
     # - --target=x86_64-w64-windows-gnu
     # - -Wall
     # - xc++
-    - -std=gnu++20
+    - -std=gnu++17
     # - -v
     # ["-xc++", "-E", "-v", "-Wall"]
   # CompilationDatabase: "./vscode"

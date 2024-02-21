@@ -5,7 +5,8 @@
 
 class TcpAsyncServerBase {
 public:
-    explicit TcpAsyncServerBase(boost::asio::io_context& ioc, const String& host, u32 port);
+  virtual ~TcpAsyncServerBase() = default;
+  explicit TcpAsyncServerBase(boost::asio::io_context& ioc, const String& host, u32 port);
     void Start();
 
 protected:
