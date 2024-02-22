@@ -30,7 +30,10 @@ public:
   auto end() -> typename Vec<ValueType>::iterator {
     return storage_.end();
   }
-
+  auto Resize(u64 size) {
+    storage_.resize(size, stop_value_);
+    storage_size_ = size;
+  }
   auto AsioBuffer() {
     return boost::asio::buffer(&storage_[WriteIdx()], RemainByteSize());
   }
@@ -45,24 +48,12 @@ public:
     return storage_.data();
   }
   auto PopFront(u64 size) -> StorageType;
-  auto Front(u64 size) -> StorageType;
+  auto Front(u64 size) const -> StorageType;
   auto operator[](i64 idx) -> ValueType&;
   auto PrettyStr() const -> String;
 
 private:
-  auto WriteIdx() {
-    u64 increment = 0;
-    for (const auto& ele : storage_) {
-      if (ele == stop_value_) {
-        return increment;
-      }
-      increment++;
-    }
-    if (increment == storage_.size()) {
-      fmt::println("buffer overflow");
-    }
-    return increment;
-  }
+  auto WriteIdx() const -> u64;
   StorageType storage_;
   ValueType stop_value_;
   u64 storage_size_ = 0;
@@ -92,7 +83,7 @@ auto VecBuffer<ValueType>::PopFront(u64 size) -> StorageType {
   return res;
 }
 template <typename ValueType>
-auto VecBuffer<ValueType>::Front(u64 size) -> StorageType {
+auto VecBuffer<ValueType>::Front(u64 size) const -> StorageType {
   if (size >= storage_.size()) {
     return {storage_.begin(), storage_.begin() + WriteIdx()};
   }
@@ -121,6 +112,20 @@ auto VecBuffer<ValueType>::PrettyStr() const -> String {
   }
   res.append("]");
   return res;
+}
+template <typename ValueType>
+auto VecBuffer<ValueType>::WriteIdx() const -> u64 {
+  u64 increment = 0;
+  for (const auto& ele : storage_) {
+    if (ele == stop_value_) {
+      return increment;
+    }
+    increment++;
+  }
+  if (increment == storage_.size()) {
+    fmt::println("buffer overflow");
+  }
+  return increment;
 }
 }  // namespace mhttplib
 

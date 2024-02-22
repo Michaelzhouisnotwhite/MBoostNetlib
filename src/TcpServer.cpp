@@ -8,13 +8,13 @@ TcpAsyncServerBase::TcpAsyncServerBase(asio::io_context& ioc, const String& host
 }
 
 void TcpAsyncServerBase::Start() {
-    StartAccept();
+  StartAccept();
 }
 
 void TcpAsyncServerBase::StartAccept() {
-    auto client = std::make_shared<tcp::socket>(ioc_);
-    accepter_.async_accept(*client, [this, client](boost::system::error_code ec) {
-        HandleAccept(client, ec);
-        StartAccept();
-    });
+  auto client = std::make_shared<tcp::socket>(ioc_);
+  accepter_.async_accept(*client, [this, client](boost::system::error_code ec) {
+    HandleAccept(client, ec);
+    StartAccept();
+  });
 }

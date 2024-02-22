@@ -7,17 +7,17 @@ class TcpAsyncServerBase {
 public:
   virtual ~TcpAsyncServerBase() = default;
   explicit TcpAsyncServerBase(boost::asio::io_context& ioc, const String& host, u32 port);
-    void Start();
+  void Start();
 
 protected:
-    virtual void HandleAccept(std::shared_ptr<boost::asio::ip::tcp::socket> socket,
-                              boost::system::error_code ec) = 0;
+  virtual void HandleAccept(std::shared_ptr<boost::asio::ip::tcp::socket> socket,
+                            boost::system::error_code ec) = 0;
 
 private:
-    boost::asio::io_context& ioc_;
-    using tcp=boost::asio::ip::tcp;
-    tcp::acceptor accepter_;
-    void StartAccept();
+  boost::asio::io_context& ioc_;
+  using tcp = boost::asio::ip::tcp;
+  tcp::acceptor accepter_;
+  void StartAccept();
 };
 
 #endif /* SRC_TCPSERVER */
