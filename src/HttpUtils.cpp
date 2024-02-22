@@ -42,7 +42,7 @@ void HttpResponseBase::StatusCode(int code) {
   status_code_ = code;
 }
 String HttpResponseBase::HttpVersionString() const {
-  return "Http/1.1";
+  return "HTTP/1.1";
 }
 void HttpResponseBase::SetHttpVersionString(const String& version) {
   version_ = version;
@@ -60,9 +60,15 @@ void HttpBaseResponse::Prepare() {
 }
 Vec<char> HttpBaseResponse::Read(u64 size) {
   if (size + ptr_ >= all_bytes_.size()) {
-    size = all_bytes_.size();
+    size = all_bytes_.size() - ptr_;
   }
-  Vec<char> res(all_bytes_.begin() + ptr_, all_bytes_.begin() + ptr_ + size);
+  i64 offset;
+  if (ptr_ >= std::numeric_limits<i64>::max()){
+    offset = std::numeric_limits<i64>::max();
+  }else {
+    offset = static_cast<i64>(ptr_);
+  }
+  Vec<char> res(all_bytes_.begin() + offset, all_bytes_.begin() + offset + size);
   if (ptr_ + size >= all_bytes_.size()) {
     ptr_ = all_bytes_.size();
   } else {

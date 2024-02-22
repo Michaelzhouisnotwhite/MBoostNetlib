@@ -21,7 +21,6 @@ private:
   std::shared_ptr<tcp::socket> socket_;
   mhttplib::VecBuffer<char> recv_buffer_;
   boost::beast::http::request_parser<boost::beast::http::string_body> req_;
-  VecDeque<char> send_buf_;
   std::function<std::shared_ptr<mhttplib::HttpBaseResponse>(
       std::shared_ptr<mhttplib::HttpRequest> req)>
       on_http_function_;
