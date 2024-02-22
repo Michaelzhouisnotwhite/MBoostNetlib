@@ -8,7 +8,8 @@ using namespace mhttplib;
 
 HttpAsyncClient::HttpAsyncClient(std::shared_ptr<tcp::socket> socket)
     : socket_(std::move(socket)), recv_buffer_(buf_size_, '\0') {
-  on_http_function_ = [](const std::shared_ptr<HttpRequest>& req) -> std::shared_ptr<HttpBaseResponse> {
+  on_http_function_ =
+      [](const std::shared_ptr<HttpRequest>& req) -> std::shared_ptr<HttpBaseResponse> {
     auto resp = std::make_shared<HttpBaseResponse>();
     resp->StatusCode(200);
     resp->header.SetContentType("application/json");
@@ -79,7 +80,7 @@ void HttpAsyncClient::HandleReadSome(const boost::system::error_code& error,
       }
       req->body = req_.get().body();
       auto resp = on_http_function_(req);
-      if (!resp){
+      if (!resp) {
         resp = std::make_shared<HttpBaseResponse>();
       }
       resp->Prepare();
@@ -92,7 +93,7 @@ void HttpAsyncClient::HandleReadSome(const boost::system::error_code& error,
             });
         resp_chunk = resp->Read(100);
       }
-    //   socket_->shutdown(tcp::socket::shutdown_send, ec);
+      //   socket_->shutdown(tcp::socket::shutdown_send, ec);
     }
     return;
   }
