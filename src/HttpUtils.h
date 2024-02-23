@@ -11,7 +11,20 @@
 
 #include "buffers.h"
 namespace mhttplib {
+struct MaxLenString : public String {
+  explicit MaxLenString(u64 max_size = 8190) : String(), max_len_(max_size) {
+  }
+  bool push_back(const char& val) {
+    if (String::length() >= max_len_) {
+      return false;
+    }
+    String::push_back(val);
+    return true;
+  }
 
+private:
+  u64 max_len_;
+};
 class HttpHeader {
 public:
   using HeaderType = std::map<String, String>;
@@ -24,6 +37,8 @@ public:
   String& operator[](const String& key) {
     return header_[key];
   }
+  bool HasContentLength() const;
+  u64 ContentLength() const;
   String ToString();
   bool Empty() {
     return header_.empty();
@@ -37,11 +52,12 @@ private:
 class HttpRequest {
 public:
   String body;
-  String method;
-  String uri;
+  MaxLenString method;
+  MaxLenString uri;
   int http_version_major;
   int http_version_minor;
   HttpHeader header;
+  u64 RemainContentSize() const;
 };
 
 class HttpResponseUtils {
@@ -85,15 +101,17 @@ public:
   u64 Put(const Vec<char>& buffer, int& ec);
   bool HeaderDone() const;
   bool Done() const;
+  void Reset();
 
 private:
+  int ParseBody(char input);
   struct HeaderLine {
-    String name{};
-    String value{};
+    MaxLenString name{};
+    MaxLenString value{};
   };
   VecDeque<HeaderLine> header_lines_;
   int MoveNextState(char input);
-  enum result_type { good, bad, indeterminate };
+  enum result_type { header_good, bad, indeterminate, content_good };
   enum state {
     method_start,
     method,
@@ -114,13 +132,14 @@ private:
     space_before_header_value,
     header_value,
     expecting_newline_2,
-    expecting_newline_3
+    expecting_newline_3,
+    expecting_content
   } state_ = method_start;
+  u64 content_counter_ = 0;
   bool header_done_ = false;
   bool done_ = false;
   u32 max_http_line_ = 8029;
   std::shared_ptr<HttpRequest> req_;
-  HttpHeader header_;
   bool is_char(int c);
 
   bool is_ctl(int c);

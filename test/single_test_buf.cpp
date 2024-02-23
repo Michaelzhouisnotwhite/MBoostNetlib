@@ -38,5 +38,7 @@ int main() {
   HttpRequestParser parser;
   int ec;
   auto size = parser.Put({header_post.begin(), header_post.end()}, ec);
+  auto remain_req = String(header_post.begin() + static_cast<long int>(size), header_post.end());
+  size = parser.Put({remain_req.begin(), remain_req.end()}, ec);
   return 0;
 }
