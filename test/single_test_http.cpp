@@ -5,9 +5,19 @@
 #include "HttpServer.h"
 #include "fmt/core.h"
 int main(int argc, char* argv[]) {
-    boost::asio::io_context io;
-    auto server = HttpAsyncServer(io, "0.0.0.0", 8888);
-    server.Start();
-    io.run();
-    return 0;
+  boost::asio::io_context io;
+  auto server = HttpAsyncServer(io, "0.0.0.0", 8888);
+  server.Start();
+  auto threads = Vec<std::thread>();
+  mhttplib::ThreadPrinter::Instance();
+  for (int i = 0; i < 16; i++) {
+    threads.emplace_back([&io]() {
+      io.run();
+    });
+  }
+  for (auto& thr : threads) {
+    thr.join();
+  }
+  // io.run();
+  return 0;
 }

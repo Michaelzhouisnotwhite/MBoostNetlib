@@ -1,0 +1,300 @@
+<?xml version="1.0"?>
+
+<valgrindoutput>
+
+<protocolversion>4</protocolversion>
+<protocoltool>memcheck</protocoltool>
+
+<preamble>
+  <line>Memcheck, a memory error detector</line>
+  <line>Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.</line>
+  <line>Using Valgrind-3.18.1 and LibVEX; rerun with -h for copyright info</line>
+  <line>Command: /home/tssh/Repo/MBoostNetlib/clion-cmake-build-debug-gcc/test/single_test_http</line>
+</preamble>
+
+<pid>10998</pid>
+<ppid>8143</ppid>
+<tool>memcheck</tool>
+
+<args>
+  <vargv>
+    <exe>/usr/bin/valgrind.bin</exe>
+    <arg>--tool=memcheck</arg>
+    <arg>--xml=yes</arg>
+    <arg>--xml-file=/tmp/clion-valgrind37ed8ed5-8df3-47e0-a45a-bdb5a94fa53e/valgrind_output_%p</arg>
+    <arg>--gen-suppressions=all</arg>
+    <arg>--leak-check=full</arg>
+    <arg>--leak-resolution=med</arg>
+    <arg>--track-origins=yes</arg>
+    <arg>--vgdb=no</arg>
+  </vargv>
+  <argv>
+    <exe>/home/tssh/Repo/MBoostNetlib/clion-cmake-build-debug-gcc/test/single_test_http</exe>
+  </argv>
+</args>
+
+<status>
+  <state>RUNNING</state>
+  <time>00:00:00:00.091 </time>
+</status>
+
+<fatal_signal>
+  <tid>1</tid>
+  <signo>15</signo>
+  <signame>SIGTERM</signame>
+  <sicode>0</sicode>
+  <stack>
+    <frame>
+      <ip>0x4EE6117</ip>
+      <obj>/usr/lib/x86_64-linux-gnu/libc.so.6</obj>
+      <fn>__futex_abstimed_wait_common64</fn>
+      <dir>./nptl/./nptl</dir>
+      <file>futex-internal.c</file>
+      <line>57</line>
+    </frame>
+    <frame>
+      <ip>0x4EE6117</ip>
+      <obj>/usr/lib/x86_64-linux-gnu/libc.so.6</obj>
+      <fn>__futex_abstimed_wait_common</fn>
+      <dir>./nptl/./nptl</dir>
+      <file>futex-internal.c</file>
+      <line>87</line>
+    </frame>
+    <frame>
+      <ip>0x4EE6117</ip>
+      <obj>/usr/lib/x86_64-linux-gnu/libc.so.6</obj>
+      <fn>__futex_abstimed_wait_cancelable64</fn>
+      <dir>./nptl/./nptl</dir>
+      <file>futex-internal.c</file>
+      <line>139</line>
+    </frame>
+    <frame>
+      <ip>0x4EEB623</ip>
+      <obj>/usr/lib/x86_64-linux-gnu/libc.so.6</obj>
+      <fn>__pthread_clockjoin_ex</fn>
+      <dir>./nptl/./nptl</dir>
+      <file>pthread_join_common.c</file>
+      <line>105</line>
+    </frame>
+    <frame>
+      <ip>0x4D052C6</ip>
+      <obj>/usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.30</obj>
+      <fn>std::thread::join()</fn>
+    </frame>
+    <frame>
+      <ip>0x113B0A</ip>
+      <obj>/home/tssh/Documents/Repo/MBoostNetlib/clion-cmake-build-debug-gcc/test/single_test_http</obj>
+      <fn>main</fn>
+      <dir>/home/tssh/Repo/MBoostNetlib/test</dir>
+      <file>single_test_http.cpp</file>
+      <line>18</line>
+    </frame>
+  </stack>
+</fatal_signal>
+
+
+<status>
+  <state>FINISHED</state>
+  <time>00:00:01:05.980 </time>
+</status>
+
+<error>
+  <unique>0x15</unique>
+  <tid>1</tid>
+  <kind>Leak_PossiblyLost</kind>
+  <xwhat>
+    <text>5,120 bytes in 16 blocks are possibly lost in loss record 22 of 23</text>
+    <leakedbytes>5120</leakedbytes>
+    <leakedblocks>16</leakedblocks>
+  </xwhat>
+  <stack>
+    <frame>
+      <ip>0x484DA83</ip>
+      <obj>/usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so</obj>
+      <fn>calloc</fn>
+    </frame>
+    <frame>
+      <ip>0x40147D9</ip>
+      <obj>/usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2</obj>
+      <fn>calloc</fn>
+      <dir>./elf/../include</dir>
+      <file>rtld-malloc.h</file>
+      <line>44</line>
+    </frame>
+    <frame>
+      <ip>0x40147D9</ip>
+      <obj>/usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2</obj>
+      <fn>allocate_dtv</fn>
+      <dir>./elf/../elf</dir>
+      <file>dl-tls.c</file>
+      <line>375</line>
+    </frame>
+    <frame>
+      <ip>0x40147D9</ip>
+      <obj>/usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2</obj>
+      <fn>_dl_allocate_tls</fn>
+      <dir>./elf/../elf</dir>
+      <file>dl-tls.c</file>
+      <line>634</line>
+    </frame>
+    <frame>
+      <ip>0x4EEA7B4</ip>
+      <obj>/usr/lib/x86_64-linux-gnu/libc.so.6</obj>
+      <fn>allocate_stack</fn>
+      <dir>./nptl/./nptl</dir>
+      <file>allocatestack.c</file>
+      <line>430</line>
+    </frame>
+    <frame>
+      <ip>0x4EEA7B4</ip>
+      <obj>/usr/lib/x86_64-linux-gnu/libc.so.6</obj>
+      <fn>pthread_create@@GLIBC_2.34</fn>
+      <dir>./nptl/./nptl</dir>
+      <file>pthread_create.c</file>
+      <line>647</line>
+    </frame>
+    <frame>
+      <ip>0x4D05328</ip>
+      <obj>/usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.30</obj>
+      <fn>std::thread::_M_start_thread(std::unique_ptr&lt;std::thread::_State, std::default_delete&lt;std::thread::_State&gt; &gt;, void (*)())</fn>
+    </frame>
+    <frame>
+      <ip>0x11405F</ip>
+      <obj>/home/tssh/Documents/Repo/MBoostNetlib/clion-cmake-build-debug-gcc/test/single_test_http</obj>
+      <fn>std::thread::thread&lt;main::{lambda()#1}, , void&gt;(main::{lambda()#1}&amp;&amp;)</fn>
+      <dir>/usr/include/c++/11/bits</dir>
+      <file>std_thread.h</file>
+      <line>143</line>
+    </frame>
+    <frame>
+      <ip>0x113FB0</ip>
+      <obj>/home/tssh/Documents/Repo/MBoostNetlib/clion-cmake-build-debug-gcc/test/single_test_http</obj>
+      <fn>void __gnu_cxx::new_allocator&lt;std::thread&gt;::construct&lt;std::thread, main::{lambda()#1}&gt;(std::thread*, main::{lambda()#1}&amp;&amp;)</fn>
+      <dir>/usr/include/c++/11/ext</dir>
+      <file>new_allocator.h</file>
+      <line>162</line>
+    </frame>
+    <frame>
+      <ip>0x113D17</ip>
+      <obj>/home/tssh/Documents/Repo/MBoostNetlib/clion-cmake-build-debug-gcc/test/single_test_http</obj>
+      <fn>void std::allocator_traits&lt;std::allocator&lt;std::thread&gt; &gt;::construct&lt;std::thread, main::{lambda()#1}&gt;(std::allocator&lt;std::thread&gt;&amp;, std::thread*, main::{lambda()#1}&amp;&amp;)</fn>
+      <dir>/usr/include/c++/11/bits</dir>
+      <file>alloc_traits.h</file>
+      <line>516</line>
+    </frame>
+    <frame>
+      <ip>0x113DED</ip>
+      <obj>/home/tssh/Documents/Repo/MBoostNetlib/clion-cmake-build-debug-gcc/test/single_test_http</obj>
+      <fn>void std::vector&lt;std::thread, std::allocator&lt;std::thread&gt; &gt;::_M_realloc_insert&lt;main::{lambda()#1}&gt;(__gnu_cxx::__normal_iterator&lt;std::thread*, std::vector&lt;std::thread, std::allocator&lt;std::thread&gt; &gt; &gt;, main::{lambda()#1}&amp;&amp;)</fn>
+      <dir>/usr/include/c++/11/bits</dir>
+      <file>vector.tcc</file>
+      <line>449</line>
+    </frame>
+    <frame>
+      <ip>0x113CC1</ip>
+      <obj>/home/tssh/Documents/Repo/MBoostNetlib/clion-cmake-build-debug-gcc/test/single_test_http</obj>
+      <fn>std::thread&amp; std::vector&lt;std::thread, std::allocator&lt;std::thread&gt; &gt;::emplace_back&lt;main::{lambda()#1}&gt;(main::{lambda()#1}&amp;&amp;)</fn>
+      <dir>/usr/include/c++/11/bits</dir>
+      <file>vector.tcc</file>
+      <line>121</line>
+    </frame>
+    <frame>
+      <ip>0x113A99</ip>
+      <obj>/home/tssh/Documents/Repo/MBoostNetlib/clion-cmake-build-debug-gcc/test/single_test_http</obj>
+      <fn>main</fn>
+      <dir>/home/tssh/Repo/MBoostNetlib/test</dir>
+      <file>single_test_http.cpp</file>
+      <line>13</line>
+    </frame>
+  </stack>
+  <suppression>
+    <sname>insert_a_suppression_name_here</sname>
+    <skind>Memcheck:Leak</skind>
+    <skaux>match-leak-kinds: possible</skaux>
+    <sframe> <fun>calloc</fun> </sframe>
+    <sframe> <fun>calloc</fun> </sframe>
+    <sframe> <fun>allocate_dtv</fun> </sframe>
+    <sframe> <fun>_dl_allocate_tls</fun> </sframe>
+    <sframe> <fun>allocate_stack</fun> </sframe>
+    <sframe> <fun>pthread_create@@GLIBC_2.34</fun> </sframe>
+    <sframe> <fun>_ZNSt6thread15_M_start_threadESt10unique_ptrINS_6_StateESt14default_deleteIS1_EEPFvvE</fun> </sframe>
+    <sframe> <fun>_ZNSt6threadC1IZ4mainEUlvE_JEvEEOT_DpOT0_</fun> </sframe>
+    <sframe> <fun>_ZN9__gnu_cxx13new_allocatorISt6threadE9constructIS1_JZ4mainEUlvE_EEEvPT_DpOT0_</fun> </sframe>
+    <sframe> <fun>_ZNSt16allocator_traitsISaISt6threadEE9constructIS0_JZ4mainEUlvE_EEEvRS1_PT_DpOT0_</fun> </sframe>
+    <sframe> <fun>_ZNSt6vectorISt6threadSaIS0_EE17_M_realloc_insertIJZ4mainEUlvE_EEEvN9__gnu_cxx17__normal_iteratorIPS0_S2_EEDpOT_</fun> </sframe>
+    <sframe> <fun>_ZNSt6vectorISt6threadSaIS0_EE12emplace_backIJZ4mainEUlvE_EEERS0_DpOT_</fun> </sframe>
+    <sframe> <fun>main</fun> </sframe>
+    <rawtext>
+<![CDATA[
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:calloc
+   fun:calloc
+   fun:allocate_dtv
+   fun:_dl_allocate_tls
+   fun:allocate_stack
+   fun:pthread_create@@GLIBC_2.34
+   fun:_ZNSt6thread15_M_start_threadESt10unique_ptrINS_6_StateESt14default_deleteIS1_EEPFvvE
+   fun:_ZNSt6threadC1IZ4mainEUlvE_JEvEEOT_DpOT0_
+   fun:_ZN9__gnu_cxx13new_allocatorISt6threadE9constructIS1_JZ4mainEUlvE_EEEvPT_DpOT0_
+   fun:_ZNSt16allocator_traitsISaISt6threadEE9constructIS0_JZ4mainEUlvE_EEEvRS1_PT_DpOT0_
+   fun:_ZNSt6vectorISt6threadSaIS0_EE17_M_realloc_insertIJZ4mainEUlvE_EEEvN9__gnu_cxx17__normal_iteratorIPS0_S2_EEDpOT_
+   fun:_ZNSt6vectorISt6threadSaIS0_EE12emplace_backIJZ4mainEUlvE_EEERS0_DpOT_
+   fun:main
+}
+]]>
+    </rawtext>
+  </suppression>
+</error>
+
+  <suppression>
+    <sname>insert_a_suppression_name_here</sname>
+    <skind>Memcheck:Leak</skind>
+    <skaux>match-leak-kinds: possible</skaux>
+    <sframe> <fun>calloc</fun> </sframe>
+    <sframe> <fun>calloc</fun> </sframe>
+    <sframe> <fun>allocate_dtv</fun> </sframe>
+    <sframe> <fun>_dl_allocate_tls</fun> </sframe>
+    <sframe> <fun>allocate_stack</fun> </sframe>
+    <sframe> <fun>pthread_create@@GLIBC_2.34</fun> </sframe>
+    <sframe> <fun>_ZNSt6thread15_M_start_threadESt10unique_ptrINS_6_StateESt14default_deleteIS1_EEPFvvE</fun> </sframe>
+    <sframe> <fun>_ZNSt6threadC1IZ4mainEUlvE_JEvEEOT_DpOT0_</fun> </sframe>
+    <sframe> <fun>_ZN9__gnu_cxx13new_allocatorISt6threadE9constructIS1_JZ4mainEUlvE_EEEvPT_DpOT0_</fun> </sframe>
+    <sframe> <fun>_ZNSt16allocator_traitsISaISt6threadEE9constructIS0_JZ4mainEUlvE_EEEvRS1_PT_DpOT0_</fun> </sframe>
+    <sframe> <fun>_ZNSt6vectorISt6threadSaIS0_EE17_M_realloc_insertIJZ4mainEUlvE_EEEvN9__gnu_cxx17__normal_iteratorIPS0_S2_EEDpOT_</fun> </sframe>
+    <sframe> <fun>_ZNSt6vectorISt6threadSaIS0_EE12emplace_backIJZ4mainEUlvE_EEERS0_DpOT_</fun> </sframe>
+    <sframe> <fun>main</fun> </sframe>
+    <rawtext>
+<![CDATA[
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:calloc
+   fun:calloc
+   fun:allocate_dtv
+   fun:_dl_allocate_tls
+   fun:allocate_stack
+   fun:pthread_create@@GLIBC_2.34
+   fun:_ZNSt6thread15_M_start_threadESt10unique_ptrINS_6_StateESt14default_deleteIS1_EEPFvvE
+   fun:_ZNSt6threadC1IZ4mainEUlvE_JEvEEOT_DpOT0_
+   fun:_ZN9__gnu_cxx13new_allocatorISt6threadE9constructIS1_JZ4mainEUlvE_EEEvPT_DpOT0_
+   fun:_ZNSt16allocator_traitsISaISt6threadEE9constructIS0_JZ4mainEUlvE_EEEvRS1_PT_DpOT0_
+   fun:_ZNSt6vectorISt6threadSaIS0_EE17_M_realloc_insertIJZ4mainEUlvE_EEEvN9__gnu_cxx17__normal_iteratorIPS0_S2_EEDpOT_
+   fun:_ZNSt6vectorISt6threadSaIS0_EE12emplace_backIJZ4mainEUlvE_EEERS0_DpOT_
+   fun:main
+}
+]]>
+    </rawtext>
+  </suppression>
+<errorcounts>
+</errorcounts>
+
+<suppcounts>
+</suppcounts>
+
+</valgrindoutput>
+
+

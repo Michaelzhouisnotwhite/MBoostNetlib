@@ -29,6 +29,9 @@ HttpHeader::HeaderType HttpHeader::GetHeader() const {
 }
 bool HttpHeader::HasContentLength() const {
   auto iter = header_.find("Content-Length");
+  if (auto chunk_iter = header_.find("Transfer-Encoding"); chunk_iter != header_.end()) {
+    return false;
+  }
   return iter != header_.end();
 }
 u64 HttpHeader::ContentLength() const {
@@ -97,14 +100,19 @@ u64 HttpRequestParser::Put(const Vec<char>& buffer, int& ec) {
     req_ = std::make_shared<HttpRequest>();
   }
   u64 consume_size = 0;
-  for (auto iter = buffer.begin(); iter != buffer.end(); ++iter) {
+  for (auto iter = buffer.begin(); iter != buffer.end(); ++iter, consume_size++) {
     auto res = ec = MoveNextState(*iter);
+
     if (res == header_good) {
       for (const auto& [name, value] : header_lines_) {
         req_->header[name] = String(value.c_str());
       }
+      if (!req_->header.HasContentLength() ||
+          req_->header.ContentLength() == 0 && !req_->header.chunked()) {
+        done_ = true;
+        res = content_good;
+      }
     }
-    consume_size = iter + 1 - buffer.begin();
     if (res == bad || res == content_good) {
       return consume_size;
     }
@@ -118,6 +126,13 @@ bool HttpRequestParser::Done() const {
   return done_;
 }
 void HttpRequestParser::Reset() {
+  req_.reset();
+  state_ = method_start;
+  header_done_ = done_ = false;
+  header_lines_.clear();
+}
+std::shared_ptr<HttpRequest> HttpRequestParser::Result() const {
+  return req_;
 }
 int HttpRequestParser::ParseBody(char input) {
   if (req_->header.HasContentLength()) {
@@ -128,6 +143,7 @@ int HttpRequestParser::ParseBody(char input) {
   }
   return bad;
 }
+
 int HttpRequestParser::MoveNextState(char input) {
   switch (state_) {
     case method_start: {

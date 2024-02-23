@@ -13,7 +13,8 @@ HttpAsyncClient::HttpAsyncClient(std::shared_ptr<tcp::socket> socket)
     auto resp = std::make_shared<HttpBaseResponse>();
     resp->StatusCode(200);
     resp->header.SetContentType("application/json");
-    resp->body = R"({"message": "from mHttpServer"})";
+    resp->body =
+        fmt::format(R"({{"message": "from mHttpServer", "origin_content": {}}})", req->body);
     return resp;
   };
 }
@@ -28,57 +29,63 @@ void HttpAsyncClient::StartRecv() {
 void HttpAsyncClient::HandleReadSome(const boost::system::error_code& error,
                                      std::size_t bytes_transferred) {
   if (error.failed()) {
-    print(fg(fmt::color::red), "HandleReadSome error: {}\n", error.message());
+    mhlPrinter.Print(fmt::format("HandleReadSome error: {}\n", error.message()),
+                     ThreadPrinter::Color_Red);
     return;
   }
-  fmt::print(fg(fmt::color::red), "HandleReadSome error: {}\n", error.message());
-  assert(bytes_transferred <= recv_buffer_.ByteSize() && "bytes_transferred < buf.bytesize()");
-  // recv_buf_ = VecDeque<char>(buf.begin(), buf.begin() + bytes_transferred);
-  boost::system::error_code ec;
-  fmt::println("{}", recv_buffer_.PrettyStr());
+  mhlPrinter.Print(fmt::format("HandleReadSome error: {}\n", error.message()),
+                   ThreadPrinter::Color_Red);
+  assert(bytes_transferred <= recv_buffer_.ByteSize() && "bytes_transferred <= buf.bytesize()");
+  mhlPrinter.Println(recv_buffer_.PrettyStr());
+
   auto _front = recv_buffer_.Front(std::numeric_limits<u64>::max());
 
-  auto bytes_putted = req_.put(asio::buffer(_front.data(), _front.size()), ec);
-  if (ec.failed() && ec != boost::beast::http::error::need_more) {
-    fmt::print(fg(fmt::color::red), "HandleReadSome req error: {}\n", ec.message());
+  int req_ec;
+  auto bytes_putted = req_.Put(_front, req_ec);
+  if (req_ec == HttpRequestParser::bad) {
+    boost::system::error_code ec;
+    mhlPrinter.Print(fmt::format("HandleReadSome error: {}\n", error.message()),
+                     ThreadPrinter::Color_Red);
     return;
   }
-  if (ec == boost::beast::http::error::need_more && bytes_putted == 0 && !_front.empty()) {
+  if (req_ec == HttpRequestParser::indeterminate && bytes_putted == 0 && !_front.empty()) {
     recv_buffer_.Resize(recv_buffer_.size() * 2);
     StartRecv();
     return;
   }
   recv_buffer_.PopFront(bytes_putted);
 
-  if (req_.is_header_done()) {
+  if (req_.HeaderDone()) {
     // print header
-    fmt::println("header: ------------");
-    for (const auto& map : req_.get()) {
-      fmt::println("{}: {}", std::string(map.name_string()), std::string(map.value()));
+    mhlPrinter.Println("header: ------------");
+    for (const auto& [name, value] : req_.Result()->header) {
+      mhlPrinter.Println(fmt::format("{}: {}", name, value));
     }
-    if (req_.content_length().has_value() && !req_.is_done()) {
-      // TODO: do something
-      _front = recv_buffer_.Front(std::numeric_limits<u64>::max());
-
-      bytes_putted = req_.put(asio::buffer(_front.data(), _front.size()), ec);
-      if (bytes_putted != _front.size()) {
-        return;
+    if (auto req = req_.Result(); !req) {
+      if (!req->header.chunked() && !req->header.HasContentLength()) {
+        req->header["Content-Length"] = std::to_string(0);
       }
-      recv_buffer_.PopFront(bytes_putted);
+      if (!req_.Done()) {
+        // TODO: do something
+        _front = recv_buffer_.Front(std::numeric_limits<u64>::max());
+
+        bytes_putted = req_.Put(_front, req_ec);
+        if (bytes_putted != _front.size()) {
+          return;
+        }
+        recv_buffer_.PopFront(bytes_putted);
+      }
     }
   }
-  if (req_.is_done()) {
-    fmt::println("body: -----------\n{}", req_.get().body());
+  if (req_.Done()) {
+    mhlPrinter.Println(fmt::format("body: -----------\n{}", req_.Result()->body));
     // do other things
     if (on_http_function_) {
-      auto req = std::make_shared<mhttplib::HttpRequest>();
+      auto req = req_.Result();
       if (!req) {
         return;
       }
-      for (const auto& ele : req_.get()) {
-        req->header[ele.name_string()] = ele.value();
-      }
-      req->body = req_.get().body();
+
       auto resp = on_http_function_(req);
       if (!resp) {
         resp = std::make_shared<HttpBaseResponse>();
@@ -89,10 +96,14 @@ void HttpAsyncClient::HandleReadSome(const boost::system::error_code& error,
         socket_->async_write_some(
             asio::buffer(resp_chunk.data(), resp_chunk.size()),
             [self = shared_from_this()](boost::system::error_code _ec, std::size_t) {
-              fmt::print(fg(fmt::color::red), "resp error: {}\n", _ec.message());
+              if (!_ec) {
+                mhlPrinter.Println(fmt::format("resp error: {}\n", _ec.message()),
+                                   ThreadPrinter::Color_Red);
+              }
             });
         resp_chunk = resp->Read(100);
       }
+      req_.Reset();
       //   socket_->shutdown(tcp::socket::shutdown_send, ec);
     }
     return;
@@ -117,9 +128,9 @@ void HttpAsyncServer::HandleAccept(std::shared_ptr<tcp::socket> socket,
     fmt::println("{}", ec.message());
     return;
   }
-
-  fmt::println("success peer addr: {}:{}", socket->remote_endpoint().address().to_string(),
-               socket->remote_endpoint().port());
+  mhlPrinter.Println(fmt::format("success peer addr: {}:{}",
+                                 socket->remote_endpoint().address().to_string(),
+                                 socket->remote_endpoint().port()));
 
   auto _client = std::make_shared<HttpAsyncClient>(socket);
   _client->StartRecv();

@@ -17,10 +17,10 @@ public:
 private:
   void StartRecv();
   void HandleReadSome(const boost::system::error_code& error, std::size_t bytes_transferred);
-  u64 buf_size_ = 100;
+  u64 buf_size_ = 8000;
   std::shared_ptr<tcp::socket> socket_;
   mhttplib::VecBuffer<char> recv_buffer_;
-  boost::beast::http::request_parser<boost::beast::http::string_body> req_;
+  mhttplib::HttpRequestParser req_;
   std::function<std::shared_ptr<mhttplib::HttpBaseResponse>(
       std::shared_ptr<mhttplib::HttpRequest> req)>
       on_http_function_;

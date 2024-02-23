@@ -35,7 +35,18 @@ public:
   void SetChunked(bool chunked);
   HeaderType GetHeader() const;
   String& operator[](const String& key) {
+    if (key == "Transfer-Encoding") {
+      chunked_ = true;
+      auto iter = header_.find("Content-Length");
+      header_.erase(iter);
+    }
     return header_[key];
+  }
+  auto begin() {
+    return header_.begin();
+  }
+  auto end() {
+    return header_.end();
   }
   bool HasContentLength() const;
   u64 ContentLength() const;
@@ -96,12 +107,13 @@ private:
 };
 class HttpRequestParser {
 public:
-  enum ErrorCode : int { Success, ParseError, NeedMore };
+  enum result_type { header_good, bad, indeterminate, content_good };
   HttpRequestParser() = default;
   u64 Put(const Vec<char>& buffer, int& ec);
   bool HeaderDone() const;
   bool Done() const;
   void Reset();
+  std::shared_ptr<HttpRequest> Result() const;
 
 private:
   int ParseBody(char input);
@@ -111,7 +123,7 @@ private:
   };
   VecDeque<HeaderLine> header_lines_;
   int MoveNextState(char input);
-  enum result_type { header_good, bad, indeterminate, content_good };
+
   enum state {
     method_start,
     method,

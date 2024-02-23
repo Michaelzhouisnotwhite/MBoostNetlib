@@ -9,6 +9,7 @@
 #include <boost/asio/buffer.hpp>
 #include <boost/asio/ip/address.hpp>
 
+#include "ThreadLogger.h"
 #include "fmt/format.h"
 
 namespace mhttplib {
@@ -123,7 +124,7 @@ auto VecBuffer<ValueType>::WriteIdx() const -> u64 {
     increment++;
   }
   if (increment == storage_.size()) {
-    fmt::println("buffer overflow");
+    mhlPrinter.Println("buffer overflow");
   }
   return increment;
 }
