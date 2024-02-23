@@ -1,5 +1,5 @@
-#ifndef HTTPSERVER_H
-#define HTTPSERVER_H
+#ifndef SRC_HTTPSERVER
+#define SRC_HTTPSERVER
 #include "HttpUtils.h"
 
 #include <boost/beast.hpp>
@@ -40,4 +40,4 @@ private:
   VecDeque<std::shared_ptr<HttpAsyncClient>> clients_;
 };
 
-#endif  // HTTPSERVER_H
+#endif /* SRC_HTTPSERVER */

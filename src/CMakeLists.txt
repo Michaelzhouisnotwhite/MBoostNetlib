@@ -1,6 +1,6 @@
 project(MBoostNetlib-src)
 
-file(GLOB project_srcs *.cpp)
+file(GLOB project_srcs CONFIGURE_DEPENDS *.cpp)
 add_library(MBoostNetlib-src STATIC ${project_srcs})
 
 target_link_libraries(

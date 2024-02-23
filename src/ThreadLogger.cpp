@@ -5,7 +5,6 @@
 #include "ThreadLogger.h"
 
 #include "fmt/color.h"
-#include "fmt/compile.h"
 void mhttplib::ThreadPrinter::Print(const String& output, int color) {
   std::lock_guard _lk(mutex_);
   printing_queue_.emplace_back(output, color);

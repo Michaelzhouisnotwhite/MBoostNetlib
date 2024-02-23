@@ -96,7 +96,7 @@ void HttpAsyncClient::HandleReadSome(const boost::system::error_code& error,
         socket_->async_write_some(
             asio::buffer(resp_chunk.data(), resp_chunk.size()),
             [self = shared_from_this()](boost::system::error_code _ec, std::size_t) {
-              if (!_ec) {
+              if (_ec.failed()) {
                 mhlPrinter.Println(fmt::format("resp error: {}\n", _ec.message()),
                                    ThreadPrinter::Color_Red);
               }

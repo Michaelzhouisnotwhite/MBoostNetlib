@@ -17,16 +17,16 @@ namespace mhttplib {
 class ThreadPrinter {
 public:
   enum Color {
-    Color_Defaut,
+    Color_Default,
     Color_Red,
   };
-  void Print(const String& output, int color = Color_Red);
-  void Println(const String& output, int color = Color_Red);
+  void Print(const String& output, int color = Color_Default);
+  void Println(const String& output, int color = Color_Default);
   template <typename T>
   ThreadPrinter& operator<<(T output) {
     std::stringstream str;
     str << output;
-    printing_queue_.emplace_back(str.str(), Color_Defaut);
+    printing_queue_.emplace_back(str.str(), Color_Default);
     return *this;
   }
   ~ThreadPrinter();
