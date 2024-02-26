@@ -40,14 +40,17 @@ mhttplib::ThreadPrinter::ThreadPrinter() {
         return;
       }
       while (!printing_queue_.empty()) {
-        std::lock_guard _lk(mutex_);
-        auto pc = fmt::fg(fmt::color::black);
-        if (printing_queue_.front().color == Color_Red) {
-          fmt::print(fmt::fg(fmt::color::red), "{}", printing_queue_.front().content);
-        } else {
-          fmt::print("{}", printing_queue_.front().content);
+        mutex_.lock();
+        auto outputs = printing_queue_;
+        printing_queue_.clear();
+        mutex_.unlock();
+        for (const auto& output : outputs) {
+          if (output.color == Color_Red) {
+            fmt::print(fmt::fg(fmt::color::red), "{}", output.content);
+          } else {
+            fmt::print("{}", output.content);
+          }
         }
-        printing_queue_.pop_front();
       }
     }
   });

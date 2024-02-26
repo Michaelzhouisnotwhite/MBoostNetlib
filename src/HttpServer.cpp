@@ -91,17 +91,17 @@ void HttpAsyncClient::HandleReadSome(const boost::system::error_code& error,
         resp = std::make_shared<HttpBaseResponse>();
       }
       resp->Prepare();
-      auto resp_chunk = resp->Read(100);
+      auto resp_chunk = resp->Read(10000);
       while (!resp_chunk.empty()) {
         socket_->async_write_some(
             asio::buffer(resp_chunk.data(), resp_chunk.size()),
-            [self = shared_from_this()](boost::system::error_code _ec, std::size_t) {
+            [self = shared_from_this()](const boost::system::error_code& _ec, std::size_t) {
               if (_ec.failed()) {
                 mhlPrinter.Println(fmt::format("resp error: {}\n", _ec.message()),
                                    ThreadPrinter::Color_Red);
               }
             });
-        resp_chunk = resp->Read(100);
+        resp_chunk = resp->Read(10000);
       }
       req_.Reset();
       //   socket_->shutdown(tcp::socket::shutdown_send, ec);
