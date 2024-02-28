@@ -34,26 +34,14 @@ public:
   [[nodiscard]] bool chunked() const;
   void SetChunked(bool chunked);
   HeaderType GetHeader() const;
-  String& operator[](const String& key) {
-    if (key == "Transfer-Encoding") {
-      chunked_ = true;
-      auto iter = header_.find("Content-Length");
-      header_.erase(iter);
-    }
-    return header_[key];
-  }
-  auto begin() {
-    return header_.begin();
-  }
-  auto end() {
-    return header_.end();
-  }
+  void SetHeader(const String& key, const String& value);
+  String& operator[](const String& key);
+  auto begin() -> HeaderType::iterator;
+  auto end() -> HeaderType::iterator;
   bool HasContentLength() const;
   u64 ContentLength() const;
   String ToString();
-  bool Empty() {
-    return header_.empty();
-  }
+  bool Empty();
 
 private:
   HeaderType header_;
@@ -83,11 +71,12 @@ protected:
 class HttpResponseBase {
 public:
   virtual ~HttpResponseBase() = default;
-
+  virtual String StatusText() const;
   virtual int StatusCode() const;
   virtual void StatusCode(int code);
   virtual String HttpVersionString() const;
   virtual void SetHttpVersionString(const String& version);
+  virtual String GetGMTTimeString();
 
 private:
   int status_code_ = 200;
@@ -107,7 +96,7 @@ private:
 };
 class HttpRequestParser {
 public:
-  enum result_type { header_good, bad, indeterminate, content_good };
+  enum ParserResult { header_good, bad, indeterminate, content_good };
   HttpRequestParser() = default;
   u64 Put(const Vec<char>& buffer, int& ec);
   bool HeaderDone() const;
@@ -124,7 +113,7 @@ private:
   VecDeque<HeaderLine> header_lines_;
   int MoveNextState(char input);
 
-  enum state {
+  enum class state {
     method_start,
     method,
     uri,
@@ -146,7 +135,7 @@ private:
     expecting_newline_2,
     expecting_newline_3,
     expecting_content
-  } state_ = method_start;
+  } state_ = state::method_start;
   u64 content_counter_ = 0;
   bool header_done_ = false;
   bool done_ = false;

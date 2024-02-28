@@ -28,6 +28,8 @@ Diagnostics:
       - modernize-use-nodiscard
       - bugprone-easily-swappable-parameters
       - modernize-avoid-c-arrays
+      - bugprone-unused-return-value
+      - cert-err33-c
 
 
 Hover:

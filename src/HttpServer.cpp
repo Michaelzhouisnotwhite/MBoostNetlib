@@ -9,12 +9,25 @@ using namespace mhttplib;
 HttpAsyncClient::HttpAsyncClient(std::shared_ptr<tcp::socket> socket)
     : socket_(std::move(socket)), recv_buffer_(buf_size_, '\0') {
   on_http_function_ =
-      [](const std::shared_ptr<HttpRequest>& req) -> std::shared_ptr<HttpBaseResponse> {
+      [_socket =
+           socket_](const std::shared_ptr<HttpRequest>& req) -> std::shared_ptr<HttpBaseResponse> {
     auto resp = std::make_shared<HttpBaseResponse>();
-    resp->StatusCode(200);
+    mhlPrinter.Println(_socket->remote_endpoint().address().to_string() + ":" +
+                       std::to_string(_socket->remote_endpoint().port()));
+    if (req->uri != "/") {
+      resp->StatusCode(404);
+      resp->header.SetContentType("text/html");
+      resp->body = R"(<h1>404 Not Found</h1>No context found for request)";
+      return resp;
+    }
+    if (req->method == "GET") {
+      resp->StatusCode(200);
+    } else {
+      resp->StatusCode(201);
+    }
     resp->header.SetContentType("application/json");
-    resp->body =
-        fmt::format(R"({{"message": "from mHttpServer", "origin_content": {}}})", req->body);
+    resp->body = R"({"message":"Hello World"})";
+    //  fmt::format(R"({{"message": "from mHttpServer", "origin_content": {}}})", req->body);
     return resp;
   };
 }
@@ -28,16 +41,13 @@ void HttpAsyncClient::StartRecv() {
 }
 void HttpAsyncClient::HandleReadSome(const boost::system::error_code& error,
                                      std::size_t bytes_transferred) {
-  if (error.failed()) {
-    mhlPrinter.Print(fmt::format("HandleReadSome error: {}\n", error.message()),
-                     ThreadPrinter::Color_Red);
-    return;
-  }
   mhlPrinter.Print(fmt::format("HandleReadSome error: {}\n", error.message()),
                    ThreadPrinter::Color_Red);
   assert(bytes_transferred <= recv_buffer_.ByteSize() && "bytes_transferred <= buf.bytesize()");
-  mhlPrinter.Println(recv_buffer_.PrettyStr());
-
+  // mhlPrinter.Println(recv_buffer_.PrettyStr());
+  if (error.failed() && error != asio::error::eof) {
+    return;
+  }
   auto _front = recv_buffer_.Front(std::numeric_limits<u64>::max());
 
   int req_ec;
@@ -50,8 +60,8 @@ void HttpAsyncClient::HandleReadSome(const boost::system::error_code& error,
   }
   if (req_ec == HttpRequestParser::indeterminate && bytes_putted == 0 && !_front.empty()) {
     recv_buffer_.Resize(recv_buffer_.size() * 2);
-    StartRecv();
-    return;
+    // StartRecv();
+    // return;
   }
   recv_buffer_.PopFront(bytes_putted);
 
@@ -90,6 +100,7 @@ void HttpAsyncClient::HandleReadSome(const boost::system::error_code& error,
       if (!resp) {
         resp = std::make_shared<HttpBaseResponse>();
       }
+
       resp->Prepare();
       auto resp_chunk = resp->Read(10000);
       while (!resp_chunk.empty()) {
@@ -97,16 +108,18 @@ void HttpAsyncClient::HandleReadSome(const boost::system::error_code& error,
             asio::buffer(resp_chunk.data(), resp_chunk.size()),
             [self = shared_from_this()](const boost::system::error_code& _ec, std::size_t) {
               if (_ec.failed()) {
-                mhlPrinter.Println(fmt::format("resp error: {}\n", _ec.message()),
+                mhlPrinter.Println(fmt::format("resp error: {}", _ec.message()),
                                    ThreadPrinter::Color_Red);
               }
             });
+
         resp_chunk = resp->Read(10000);
       }
+
       req_.Reset();
-      //   socket_->shutdown(tcp::socket::shutdown_send, ec);
+      // boost::system::error_code _ec;
+      // socket_->shutdown(tcp::socket::shutdown_send, _ec);
     }
-    return;
   }
   StartRecv();
 }
