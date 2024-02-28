@@ -74,7 +74,7 @@ u64 HttpRequest::RemainContentSize() const {
   return header.ContentLength() - body.length();
 }
 String HttpResponseBase::StatusText() const {
-  if (StatusCode() < 300 || StatusCode() >= 200) {
+  if (StatusCode() < 300 && StatusCode() >= 200) {
     return "OK";
   }
   return "NOT OK";
