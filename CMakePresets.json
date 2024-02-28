@@ -1,0 +1,21 @@
+{
+  "version": 6,
+  "buildPresets": [
+    {
+      "name": "gnu-build",
+      "configurePreset": "gnu-configure"
+    }
+  ],
+  "configurePresets": [
+    {
+      "name": "gnu-configure",
+      "binaryDir": "${sourceDir}/cmake-preset-build/gnu/",
+      "generator": "Ninja",
+      "cacheVariables": {},
+      "environment": {
+        "CC": "",
+        "CXX": ""
+      }
+    }
+  ]
+}
