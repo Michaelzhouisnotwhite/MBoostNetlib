@@ -15,7 +15,7 @@ foreach(single_file ${single_files})
     target_link_libraries(${proj_name} PRIVATE MBoostNetlib-src fmt::fmt Boost::bind Boost::asio Boost::url Boost::beast toy::generic)
 
     if(UNIX)
-        target_link_libraries(${proj_name} PRIVATE Backward::Interface)
+        # target_link_libraries(${proj_name} PRIVATE Backward::Interface)
     endif()
 
     message("add single test project: ${proj_name}")
