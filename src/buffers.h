@@ -123,7 +123,7 @@ auto VecBuffer<ValueType>::WriteIdx() const -> u64 {
     }
     increment++;
   }
-  if (increment == storage_.size()) {
+  if (increment >= storage_.size()) {
     mhlPrinter.Println("buffer overflow");
   }
   return increment;

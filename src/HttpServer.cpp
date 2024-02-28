@@ -31,7 +31,11 @@ HttpAsyncClient::HttpAsyncClient(std::shared_ptr<tcp::socket> socket)
     return resp;
   };
 }
-
+HttpAsyncClient::~HttpAsyncClient() {
+  if (socket_) {
+    socket_->close();
+  }
+}
 void HttpAsyncClient::StartRecv() {
   socket_->async_read_some(recv_buffer_.AsioBuffer(),
                            [self = shared_from_this()](const boost::system::error_code& error,

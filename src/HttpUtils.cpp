@@ -62,7 +62,7 @@ String HttpHeader::ToString() {
   String res;
   res.reserve(1500 * header_.size());
   for (const auto& [key, val] : header_) {
-    res.append(fmt::format("{}:{}\r\n", key, val));
+    res.append(fmt::format("{}: {}\r\n", key, val));
   }
   res.append("\r\n");
   return res;
@@ -137,7 +137,7 @@ u64 HttpRequestParser::Put(const Vec<char>& buffer, int& ec) {
     req_ = std::make_shared<HttpRequest>();
   }
   u64 consume_size = 0;
-  for (auto iter = buffer.begin(); iter != buffer.end(); ++iter, consume_size++) {
+  for (auto iter = buffer.begin(); iter != buffer.end(); ++iter) {
     auto res = ec = MoveNextState(*iter);
 
     if (res == header_good) {
@@ -150,6 +150,7 @@ u64 HttpRequestParser::Put(const Vec<char>& buffer, int& ec) {
         res = content_good;
       }
     }
+    consume_size += 1;
     if (res == bad || res == content_good) {
       return consume_size;
     }

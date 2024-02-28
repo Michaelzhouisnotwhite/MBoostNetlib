@@ -13,7 +13,7 @@ class HttpAsyncClient : public std::enable_shared_from_this<HttpAsyncClient> {
 
 public:
   explicit HttpAsyncClient(std::shared_ptr<tcp::socket> socket);
-
+  ~HttpAsyncClient();
 private:
   void StartRecv();
   void HandleReadSome(const boost::system::error_code& error, std::size_t bytes_transferred);

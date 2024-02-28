@@ -6,12 +6,13 @@
 #include "fmt/core.h"
 int main(int argc, char* argv[]) {
   boost::asio::io_context io;
-  auto server = HttpAsyncServer(io, "0.0.0.0", 8888);
-  server.Start();
+
   auto threads = Vec<std::thread>();
+  auto server = HttpAsyncServer(io, "0.0.0.0", 8888);
   mhttplib::ThreadPrinter::Instance();
-  for (int i = 0; i < 16; i++) {
-    threads.emplace_back([&io]() {
+  for (int i = 0; i < 4; i++) {
+    threads.emplace_back([&io, &server]() {
+      server.Start();
       io.run();
     });
   }
