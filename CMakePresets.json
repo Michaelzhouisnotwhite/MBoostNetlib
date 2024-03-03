@@ -4,6 +4,10 @@
     {
       "name": "gnu-build",
       "configurePreset": "gnu-configure"
+    },
+    {
+      "name": "win-build",
+      "configurePreset": "win-conf"
     }
   ],
   "configurePresets": [
@@ -20,12 +24,25 @@
     {
       "name": "win-conf",
       "binaryDir": "${sourceDir}/cmake-preset-build/win64/",
-      "generator": "Ninja",
-      "cacheVariables": {},
-      "cmakeExecutable": "C:\\Users\\MichaelZhou\\scoop\\apps\\cmake\\current\\bin\\cmake.exe",
+      "generator": "Visual Studio 17 2022",
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": {
+          "type": "PATH",
+          "value": "$env{C_C}"
+        },
+        "CMAKE_CXX_COMPILER": {
+          "type": "PATH",
+          "value": "$env{C_XX}"
+        },
+        "CMAKE_PREFIX_PATH": {
+          "type": "PATH",
+          "value": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.39.33519"
+        }
+      },
       "environment": {
-        "CC": "C:/Program\\ Files/Microsoft\\ Visual\\ Studio/2022/Community/VC/Tools/MSVC/14.37.32822/bin/Hostx64/x64/cl.exe",
-        "CXX": "C:/Program\\ Files/Microsoft\\ Visual\\ Studio/2022/Community/VC/Tools/MSVC/14.37.32822/bin/Hostx64/x64/cl.exe"
+        "C_C": "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/VC/Tools/MSVC/14.39.33519/bin/Hostx64/x64/cl.exe",
+        "C_XX": "C:/Program Files (x86)/Microsoft Visual Studio/2022/BuildTools/VC/Tools/MSVC/14.39.33519/bin/Hostx64/x64/cl.exe",
+        "PATH": "C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\VC\\Tools\\MSVC\\14.39.33519;$penv{PATH}"
       }
     }
   ]
