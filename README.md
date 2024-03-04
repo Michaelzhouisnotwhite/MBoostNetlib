@@ -1,16 +1,46 @@
 # MBoostNetLib
 
---------------------
-
 A net lib based on boost asio, contains TCP client/server and HTTP client/server.
+
+- [MBoostNetLib](#mboostnetlib)
+  - [Installation](#installation)
+    - [Unix](#unix)
+  - [Quick Start](#quick-start)
+
 
 ## Installation
 
 ### Unix
 
+Modify the configuration in CMakePresets.json.
+
+```json
+  "configurePresets": [
+    {
+      "name": "gnu-configure",
+      "binaryDir": "${sourceDir}/cmake-preset-build/gnu/",
+      "generator": "Ninja",
+      "cacheVariables": {},
+      "environment": {
+        "CC": "/path/to/gcc",
+        "CXX": "/path/to/g++"
+      }
+    },
+    ]
+```
+
+cmake configure
+
 ```shell
 # cmake configure
-cmake --preset
+cmake --preset gnu-configure
+```
+
+cmake build
+
+```shell
+# cmake configure
+cmake --build --preset gnu-build
 ```
 
 ## Quick Start
