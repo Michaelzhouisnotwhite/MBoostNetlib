@@ -1,5 +1,6 @@
 #include "HttpServer.h"
 #include <iostream>
+#include <utility>
 
 #include "fmt/color.h"
 #include "fmt/core.h"
@@ -15,15 +16,15 @@ HttpAsyncClient::HttpAsyncClient(std::shared_ptr<tcp::socket> socket)
     mhlPrinter.Println(_socket->remote_endpoint().address().to_string() + ":" +
                        std::to_string(_socket->remote_endpoint().port()));
     if (req->uri != "/") {
-      resp->StatusCode(404);
+      resp->SetStatusCode(404);
       resp->header.SetContentType("text/html");
       resp->body = R"(<h1>404 Not Found</h1>No context found for request)";
       return resp;
     }
     if (req->method == "GET") {
-      resp->StatusCode(200);
+      resp->SetStatusCode(200);
     } else {
-      resp->StatusCode(201);
+      resp->SetStatusCode(201);
     }
     resp->header.SetContentType("application/json");
     resp->body = R"({"message":"Hello World"})";
@@ -35,6 +36,10 @@ HttpAsyncClient::~HttpAsyncClient() {
   if (socket_) {
     socket_->close();
   }
+}
+void HttpAsyncClient::setHandleFunc(std::function<std::shared_ptr<mhttplib::HttpResponseBase>(
+                                        std::shared_ptr<mhttplib::HttpRequest>)> cb) {
+  on_http_function_ = std::move(cb);
 }
 void HttpAsyncClient::StartRecv() {
   socket_->async_read_some(recv_buffer_.AsioBuffer(),
@@ -99,7 +104,8 @@ void HttpAsyncClient::HandleReadSome(const boost::system::error_code& error,
       if (!req) {
         return;
       }
-
+      req->addr = socket_->remote_endpoint().address();
+      req->port = socket_->remote_endpoint().port();
       auto resp = on_http_function_(req);
       if (!resp) {
         resp = std::make_shared<HttpBaseResponse>();
@@ -138,6 +144,9 @@ HttpAsyncServer::HttpAsyncServer(boost::asio::io_context& io,
 auto HttpAsyncServer::SetTimeOut(u64 ms_timeout) -> void {
   ms_timeout_ = ms_timeout;
 }
+auto HttpAsyncServer::setHttpHandler(decltype(HttpAsyncClient::on_http_function_) cb) -> void {
+  http_handler_ = std::move(cb);
+}
 
 void HttpAsyncServer::HandleAccept(std::shared_ptr<tcp::socket> socket,
                                    boost::system::error_code ec) {
@@ -150,5 +159,6 @@ void HttpAsyncServer::HandleAccept(std::shared_ptr<tcp::socket> socket,
                                  socket->remote_endpoint().port()));
 
   auto _client = std::make_shared<HttpAsyncClient>(socket);
+  _client->setHandleFunc(http_handler_);
   _client->StartRecv();
 }

@@ -6,6 +6,7 @@
 
 #include <iomanip>
 #include <memory>
+#include <utility>
 
 #include "fmt/xchar.h"
 
@@ -16,6 +17,9 @@ void HttpHeader::SetContentType(const String& content_type) {
 void HttpHeader::SetContentLength(u64 length) {
   header_["Content-Length"] = std::to_string(length);
   chunked_ = false;
+}
+String HttpHeader::ContentType() {
+  return header_["Content-Type"];
 }
 bool HttpHeader::chunked() const {
   return chunked_;
@@ -82,7 +86,7 @@ String HttpResponseBase::StatusText() const {
 int HttpResponseBase::StatusCode() const {
   return status_code_;
 }
-void HttpResponseBase::StatusCode(int code) {
+void HttpResponseBase::SetStatusCode(int code) {
   status_code_ = code;
 }
 String HttpResponseBase::HttpVersionString() const {
@@ -106,7 +110,8 @@ void HttpBaseResponse::Prepare() {
   header["Date"] = GetGMTTimeString();
   header.SetContentLength(body.length());
   auto header_str = header.ToString();
-  auto status_line = fmt::format("{} {} {}\r\n", HttpVersionString(), StatusCode(), StatusText());
+  auto status_line = fmt::format("{} {} {}\r\n", HttpVersionString(),
+                                 HttpResponseBase::StatusCode(), StatusText());
   all_bytes_.insert(all_bytes_.end(), status_line.begin(), status_line.end());
   all_bytes_.insert(all_bytes_.end(), header_str.begin(), header_str.end());
   all_bytes_.insert(all_bytes_.end(), body.begin(), body.end());
@@ -131,6 +136,21 @@ Vec<char> HttpBaseResponse::Read(u64 size) {
 }
 HttpHeader HttpBaseResponse::Header() const {
   return header;
+}
+std::shared_ptr<HttpBaseResponse> HttpBaseResponse::Body(const String& body) {
+  this->body = body;
+  return shared_from_this();
+}
+std::shared_ptr<HttpBaseResponse> HttpBaseResponse::Header(HttpHeader header) {
+  this->header = std::move(header);
+  return shared_from_this();
+}
+std::shared_ptr<HttpBaseResponse> HttpBaseResponse::StatusCode(int code) {
+  this->SetStatusCode(code);
+  return shared_from_this();
+}
+std::shared_ptr<HttpBaseResponse> HttpBaseResponse::Create() {
+  return std::make_shared<HttpBaseResponse>();
 }
 u64 HttpRequestParser::Put(const Vec<char>& buffer, int& ec) {
   if (!req_) {

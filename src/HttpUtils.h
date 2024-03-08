@@ -10,6 +10,7 @@
 #include <optional>
 
 #include "buffers.h"
+
 namespace mhttplib {
 struct MaxLenString : public String {
   explicit MaxLenString(u64 max_size = 8190) : String(), max_len_(max_size) {
@@ -53,42 +54,47 @@ public:
   String body;
   MaxLenString method;
   MaxLenString uri;
+
+  boost::asio::ip::address addr;
+  boost::asio::ip::port_type port;
+
   int http_version_major;
   int http_version_minor;
   HttpHeader header;
   u64 RemainContentSize() const;
 };
 
-class HttpResponseUtils {
+class HttpResponseBase {
 public:
-  virtual ~HttpResponseUtils() = default;
+  virtual void SetStatusCode(int code);
+  virtual void SetHttpVersionString(const String& version);
+  virtual String StatusText() const;
+  virtual int StatusCode() const;
+  virtual String HttpVersionString() const;
+  virtual String GetGMTTimeString();
 
-protected:
+  virtual ~HttpResponseBase() = default;
   virtual void Prepare() = 0;
   virtual Vec<char> Read(u64 size) = 0;
   virtual HttpHeader Header() const = 0;
-};
-class HttpResponseBase {
-public:
-  virtual ~HttpResponseBase() = default;
-  virtual String StatusText() const;
-  virtual int StatusCode() const;
-  virtual void StatusCode(int code);
-  virtual String HttpVersionString() const;
-  virtual void SetHttpVersionString(const String& version);
-  virtual String GetGMTTimeString();
 
+protected:
 private:
   int status_code_ = 200;
   String version_;
 };
-class HttpBaseResponse : public HttpResponseBase, public HttpResponseUtils {
+class HttpBaseResponse : public HttpResponseBase,
+                         public std::enable_shared_from_this<HttpBaseResponse> {
 public:
   HttpHeader header;
   String body;
   void Prepare() override;
   Vec<char> Read(u64 size) override;
   HttpHeader Header() const override;
+  std::shared_ptr<HttpBaseResponse> Body(const String& body);
+  std::shared_ptr<HttpBaseResponse> Header(HttpHeader header);
+  std::shared_ptr<HttpBaseResponse> StatusCode(int code);
+  static std::shared_ptr<HttpBaseResponse> Create();
 
 private:
   Vec<char> all_bytes_;

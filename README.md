@@ -7,6 +7,9 @@ A net lib based on boost asio, contains TCP client/server and HTTP client/server
     - [Unix](#unix)
   - [Quick Start](#quick-start)
 
+## Motivation
+
+Boost.Asio is a very popular c++ library. So I use this library to create a client/server utilities.
 
 ## Installation
 
@@ -14,7 +17,8 @@ A net lib based on boost asio, contains TCP client/server and HTTP client/server
 
 Modify the configuration in CMakePresets.json.
 
-```json
+```jsonc
+{
   "configurePresets": [
     {
       "name": "gnu-configure",
@@ -25,8 +29,9 @@ Modify the configuration in CMakePresets.json.
         "CC": "/path/to/gcc",
         "CXX": "/path/to/g++"
       }
-    },
-    ]
+    }
+  ]
+}
 ```
 
 cmake configure
