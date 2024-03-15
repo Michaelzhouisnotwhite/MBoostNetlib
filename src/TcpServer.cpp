@@ -18,3 +18,7 @@ void TcpAsyncServerBase::StartAccept() {
     StartAccept();
   });
 }
+
+TcpAsyncServer::TcpAsyncServer(boost::asio::io_context& ioc, const String& host, u32 port):TcpAsyncServerBase(ioc, host, port){
+  
+}

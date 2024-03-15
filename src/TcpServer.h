@@ -19,5 +19,22 @@ private:
   tcp::acceptor accepter_;
   void StartAccept();
 };
+class TcpClient{
+  public:
+  private:
+  // std::shared_ptr<tcp::socket> socket_;
+  // mhttplib::VecBuffer<char> recv_buffer_;
+};
+class TcpAsyncServer : public TcpAsyncServerBase {
+public:
+  explicit TcpAsyncServer(boost::asio::io_context& ioc, const String& host, u32 port);
+  void SetHandler(std::function<String(String)> callback);
+
+private:
+  void HandleAccept(std::shared_ptr<boost::asio::ip::tcp::socket> socket,
+                    boost::system::error_code ec) override;
+
+  std::function<String(String)> call_back_;
+};
 
 #endif /* SRC_TCPSERVER */
