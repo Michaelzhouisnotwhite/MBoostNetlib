@@ -12,7 +12,10 @@
 #include "ThreadLogger.h"
 #include "fmt/format.h"
 
-namespace mhttplib {
+namespace mnet {
+Vec<char> MakeVecBuf(const String& msg){
+  return Vec<char>{msg.begin(), msg.end()};
+}
 template <typename ValueType>
 class VecBuffer {
 public:

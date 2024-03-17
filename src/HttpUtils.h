@@ -11,7 +11,7 @@
 
 #include "buffers.h"
 
-namespace mhttplib {
+namespace mnet {
 struct MaxLenString : public String {
   explicit MaxLenString(u64 max_size = 8190) : String(), max_len_(max_size) {
   }

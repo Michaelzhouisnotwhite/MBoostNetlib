@@ -9,18 +9,18 @@ int main(int argc, char* argv[]) {
 
   auto threads = Vec<std::thread>();
   auto server = HttpAsyncServer(io, "0.0.0.0", 8888);
-  server.setHttpHandler([](const HttpHandlerReq& req)
+  server.SetHttpHandler([](const HttpHandlerReq& req)
                             -> HttpHandlerResp {
-    mhttplib::HttpHeader header;
+    mnet::HttpHeader header;
     header.SetContentType("text/txt");
     header.SetHeader("username", "michael");
-    return mhttplib::HttpBaseResponse::Create()
+    return mnet::HttpBaseResponse::Create()
         ->Header(header)
         ->Body(fmt::format("your address is: {}:{}", req->addr.to_string(), req->port))
         ->StatusCode(200);
   });
 
-  mhttplib::ThreadPrinter::Instance();
+  mnet::ThreadPrinter::Instance();
   for (int i = 0; i < 4; i++) {
     threads.emplace_back([&io, &server]() {
       server.Start();

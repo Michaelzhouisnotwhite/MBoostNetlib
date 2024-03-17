@@ -12,7 +12,7 @@
 #include <sstream>
 #include <thread>
 #include <utility>
-namespace mhttplib {
+namespace mnet {
 
 class ThreadPrinter {
 public:
@@ -49,6 +49,6 @@ private:
   VecDeque<Output> printing_queue_;
 };
 }  // namespace mhttplib
-#define mhlPrinter mhttplib::ThreadPrinter::Instance()
+#define mhlPrinter mnet::ThreadPrinter::Instance()
 
 #endif  // THREADLOGGER_H

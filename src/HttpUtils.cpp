@@ -10,7 +10,7 @@
 
 #include "fmt/xchar.h"
 
-namespace mhttplib {
+namespace mnet {
 void HttpHeader::SetContentType(const String& content_type) {
   header_["Content-Type"] = content_type;
 }

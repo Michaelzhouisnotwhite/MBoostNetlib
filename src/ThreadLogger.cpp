@@ -5,23 +5,23 @@
 #include "ThreadLogger.h"
 
 #include "fmt/color.h"
-void mhttplib::ThreadPrinter::Print(const String& output, int color) {
+void mnet::ThreadPrinter::Print(const String& output, int color) {
   std::lock_guard _lk(mutex_);
   printing_queue_.emplace_back(output, color);
   cv_.notify_all();
 }
-void mhttplib::ThreadPrinter::Println(const String& output, int color) {
+void mnet::ThreadPrinter::Println(const String& output, int color) {
   std::lock_guard _lk(mutex_);
   printing_queue_.emplace_back(output + "\n", color);
   cv_.notify_all();
 }
-mhttplib::ThreadPrinter::~ThreadPrinter() {
+mnet::ThreadPrinter::~ThreadPrinter() {
   stop_ = true;
   printing_thread_.join();
 }
 std::once_flag of;
-std::unique_ptr<mhttplib::ThreadPrinter> mhttplib::ThreadPrinter::instance_;
-mhttplib::ThreadPrinter& mhttplib::ThreadPrinter::Instance() {
+std::unique_ptr<mnet::ThreadPrinter> mnet::ThreadPrinter::instance_;
+mnet::ThreadPrinter& mnet::ThreadPrinter::Instance() {
   std::call_once(of, []() {
     if (!instance_) {
       instance_.reset(new ThreadPrinter);
@@ -29,7 +29,7 @@ mhttplib::ThreadPrinter& mhttplib::ThreadPrinter::Instance() {
   });
   return *instance_;
 }
-mhttplib::ThreadPrinter::ThreadPrinter() {
+mnet::ThreadPrinter::ThreadPrinter() {
   printing_thread_ = std::thread([this]() {
     while (true) {
       std::unique_lock cv_lk(cv_mutex_);

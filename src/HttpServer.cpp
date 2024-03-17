@@ -5,7 +5,7 @@
 #include "fmt/color.h"
 #include "fmt/core.h"
 namespace asio = boost::asio;
-using namespace mhttplib;
+using namespace mnet;
 
 HttpAsyncClient::HttpAsyncClient(std::shared_ptr<tcp::socket> socket)
     : socket_(std::move(socket)), recv_buffer_(buf_size_, '\0') {
@@ -37,8 +37,8 @@ HttpAsyncClient::~HttpAsyncClient() {
     socket_->close();
   }
 }
-void HttpAsyncClient::setHandleFunc(std::function<std::shared_ptr<mhttplib::HttpResponseBase>(
-                                        std::shared_ptr<mhttplib::HttpRequest>)> cb) {
+void HttpAsyncClient::SetHandleFunc(std::function<std::shared_ptr<mnet::HttpResponseBase>(
+                                        std::shared_ptr<mnet::HttpRequest>)> cb) {
   on_http_function_ = std::move(cb);
 }
 void HttpAsyncClient::StartRecv() {
@@ -54,7 +54,7 @@ void HttpAsyncClient::HandleReadSome(const boost::system::error_code& error,
                    ThreadPrinter::Color_Red);
   assert(bytes_transferred <= recv_buffer_.ByteSize() && "bytes_transferred <= buf.bytesize()");
   // mhlPrinter.Println(recv_buffer_.PrettyStr());
-  if (error.failed() && error != asio::error::eof) {
+  if (error.failed()) {
     return;
   }
   auto _front = recv_buffer_.Front(std::numeric_limits<u64>::max());
@@ -144,7 +144,7 @@ HttpAsyncServer::HttpAsyncServer(boost::asio::io_context& io,
 auto HttpAsyncServer::SetTimeOut(u64 ms_timeout) -> void {
   ms_timeout_ = ms_timeout;
 }
-auto HttpAsyncServer::setHttpHandler(decltype(HttpAsyncClient::on_http_function_) cb) -> void {
+auto HttpAsyncServer::SetHttpHandler(decltype(HttpAsyncClient::on_http_function_) cb) -> void {
   http_handler_ = std::move(cb);
 }
 
@@ -159,6 +159,6 @@ void HttpAsyncServer::HandleAccept(std::shared_ptr<tcp::socket> socket,
                                  socket->remote_endpoint().port()));
 
   auto _client = std::make_shared<HttpAsyncClient>(socket);
-  _client->setHandleFunc(http_handler_);
+  _client->SetHandleFunc(http_handler_);
   _client->StartRecv();
 }

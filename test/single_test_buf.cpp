@@ -3,7 +3,7 @@
 #include "buffers.h"
 #include "fmt/printf.h"
 
-using namespace mhttplib;
+using namespace mnet;
 
 std::string header_post =
     "POST /post-test HTTP/1.1\r\n"
