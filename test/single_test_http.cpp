@@ -9,8 +9,7 @@ int main(int argc, char* argv[]) {
 
   auto threads = Vec<std::thread>();
   auto server = HttpAsyncServer(io, "0.0.0.0", 8888);
-  server.SetHttpHandler([](const HttpHandlerReq& req)
-                            -> HttpHandlerResp {
+  server.SetHttpHandler([](const HttpHandlerReq& req) -> HttpHandlerResp {
     mnet::HttpHeader header;
     header.SetContentType("text/txt");
     header.SetHeader("username", "michael");

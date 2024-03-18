@@ -15,13 +15,9 @@ int main(int argc, char* argv[]) {
   auto threads = Vec<std::thread>();
   auto server = TcpAsyncServer(io, "0.0.0.0", 8089);
   server.SetHandler([](const Vec<char>& input) -> Vec<char> {
-    // fmt::println("{}")
-    std::string inputs;
-    for (const auto c : input) {
-      inputs.push_back(c);
-    }
-    fmt::println("{}", inputs);
-    return {header_post.begin(), header_post.end()};
+    
+    fmt::println("{}", mnet::VecBuf2String(input));
+    return mnet::MakeVecBuf(header_post);
   });
 
   mnet::ThreadPrinter::Instance();

@@ -47,7 +47,7 @@ void TcpAsyncClient::HandleReadSome(const boost::system::error_code& error,
 
   // mhlPrinter.Print(fmt::format("HandleReadSome error: {}\n", error.message()),
   //                  mnet::ThreadPrinter::Color_Red);
-  recv_buffer_.PopFront(_front.size());
+  recv_buffer_.PopFront(bytes_transferred < _front.size() ? _front.size() : bytes_transferred);
   socket_->async_write_some(
       asio::buffer(res.data(), res.size()),
       [self = shared_from_this()](const boost::system::error_code& _ec, std::size_t) {

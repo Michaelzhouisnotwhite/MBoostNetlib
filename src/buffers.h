@@ -13,9 +13,15 @@
 #include "fmt/format.h"
 
 namespace mnet {
-Vec<char> MakeVecBuf(const String& msg){
+inline Vec<char> MakeVecBuf(const String& msg){
   return Vec<char>{msg.begin(), msg.end()};
 }
+inline String VecBuf2String(const Vec<char>& target){
+  String res;
+  res.resize(target.size() + 1, 0);
+  std::memcpy(res.data(), target.data(), target.size());
+  return res;
+} 
 template <typename ValueType>
 class VecBuffer {
 public:
