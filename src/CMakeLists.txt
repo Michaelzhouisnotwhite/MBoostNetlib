@@ -1,8 +1,7 @@
 project(MBoostNetlib-src)
 
-file(GLOB project_srcs CONFIGURE_DEPENDS *.cpp)
-file(GLOB project_hdrs CONFIGURE_DEPENDS *.h)
-add_library(MBoostNetlib-src STATIC ${project_srcs} ${project_hdrs})
+aux_source_directory(. project_srcs)
+add_library(MBoostNetlib-src STATIC ${project_srcs})
 
 target_link_libraries(
         MBoostNetlib-src PRIVATE fmt::fmt Boost::bind Boost::asio Boost::url

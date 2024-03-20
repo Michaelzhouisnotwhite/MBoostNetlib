@@ -13,15 +13,17 @@
 #include "fmt/format.h"
 
 namespace mnet {
-inline Vec<char> MakeVecBuf(const String& msg){
+inline Vec<char> MakeVecBuf(const String& msg) {
   return Vec<char>{msg.begin(), msg.end()};
 }
-inline String VecBuf2String(const Vec<char>& target){
+inline String VecBuf2String(const Vec<char>& target) {
   String res;
-  res.resize(target.size() + 1, 0);
-  std::memcpy(res.data(), target.data(), target.size());
+  res.reserve(target.size() + 1);
+  for (auto c : target) {
+    res.push_back(c);
+  }
   return res;
-} 
+}
 template <typename ValueType>
 class VecBuffer {
 public:
@@ -137,6 +139,6 @@ auto VecBuffer<ValueType>::WriteIdx() const -> u64 {
   }
   return increment;
 }
-}  // namespace mhttplib
+}  // namespace mnet
 
 #endif /* SRC_BUFFERS */

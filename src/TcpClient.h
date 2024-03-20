@@ -4,6 +4,7 @@
 #include <boost/beast.hpp>
 #include <boost/beast/http.hpp>
 #include <memory>
+#include <utility>
 #include "buffers.h"
 
 class TcpInformation {
@@ -13,15 +14,21 @@ public:
   int sockfd;
 };
 
-class TcpSession {
+class TcpSession : std::enable_shared_from_this<TcpSession> {
 public:
   explicit TcpSession();
   void Create(String host, int port);
   void SetConnectionHandler(std::function<void(const TcpInformation&)> conn_handler);
   void SetMsgHandler(std::function<Vec<char>(const Vec<char>&)> msg_handler);
   void Start();
-  void Send(Vec<char> msg);
-  void Send(const String& msg);
+  inline void Send(Vec<char> msg) {
+    return Send(std::move(msg), nullptr);
+  }
+  inline void Send(const String& msg) {
+    return Send(msg, nullptr);
+  }
+  void Send(Vec<char> msg, std::function<void()> cb);
+  void Send(const String& msg, std::function<void()> cb);
   void Wait();
   void Close();
   void SetAfterMsgHandler(std::function<void()> handler);
@@ -36,9 +43,12 @@ private:
   std::function<void()> after_msg_handler_;
   std::function<Vec<char>(const Vec<char>&)> msg_handler_;
   boost::asio::io_context io_;
+  void StartSend();
   void StartRecv();
   mnet::VecBuffer<char> read_buf_;
   std::thread io_thread_;
+
+  VecDeque<std::pair<Vec<char>, decltype(after_msg_handler_)>> send_buf_;
 };
 
 #endif /* SRC_TCPCLIENT */

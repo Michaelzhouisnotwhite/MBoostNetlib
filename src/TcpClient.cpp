@@ -10,12 +10,12 @@ void TcpSession::SetMsgHandler(std::function<Vec<char>(const Vec<char>&)> msg_ha
   msg_handler_ = std::move(msg_handler);
 }
 TcpSession::TcpSession() : io_(), read_buf_(1024) {
-  sockfd_ = boost::asio::ip::tcp::socket(io_);
+  sockfd_ = boost::asio::ip::tcp::socket(asio::make_strand(io_));
 }
 
 void TcpSession::Close() {
-  // sockfd_->close();
-  // io_.stop();
+  sockfd_->close();
+  io_.stop();
 }
 void TcpSession::Create(String host, int port) {
   host_ = std::move(host);
@@ -25,14 +25,36 @@ void TcpSession::Create(String host, int port) {
 void TcpSession::StartRecv() {
   sockfd_->async_read_some(read_buf_.AsioBuffer(),
                            [this](boost::system::error_code ec, size_t bytes_len) {
-                             if (ec.failed()) {
-                               fmt::println("connection failed");
-                               return;
-                             }
-                             return HandleRead(ec, bytes_len);
+                             HandleRead(ec, bytes_len);
                            });
 }
+
+void TcpSession::StartSend() {
+  if (send_buf_.empty()) {
+    StartRecv();
+  } else {
+    const auto& buf = send_buf_.front().first;
+    auto cb = send_buf_.front().second;
+    sockfd_->async_write_some(asio::buffer(buf.data(), buf.size()),
+                              [this, buf, cb](boost::system::error_code ec, u64 bytes_transferred) {
+                                fmt::println("{}", mnet::VecBuf2String(buf));
+                                if (ec.failed()) {
+                                  fmt::println("failed");
+                                } else {
+                                  send_buf_.pop_front();
+                                  if (cb) {
+                                    cb();
+                                  }
+                                  StartSend();
+                                }
+                              });
+  }
+}
 void TcpSession::HandleConn(boost::system::error_code ec) {
+  if (ec.failed()) {
+    fmt::println("conn failed");
+    return;
+  }
   if (conn_handler_) {
     TcpInformation info;
     info.host = host_;
@@ -40,48 +62,38 @@ void TcpSession::HandleConn(boost::system::error_code ec) {
     info.sockfd = sockfd_->native_handle();
     conn_handler_(info);
   }
+  StartSend();
 }
 
-void TcpSession::Send(Vec<char> msg) {
-  sockfd_->async_write_some(asio::buffer(msg.data(), msg.size()),
-                            [this, msg](boost::system::error_code ec, u64 bytes_transferred) {
-                              fmt::println("{}", mnet::VecBuf2String(msg));
-                              if (ec.failed()) {
-                                fmt::println("failed");
-                              }
-                              StartRecv();
-                            });
+void TcpSession::Send(Vec<char> msg, std::function<void()> cb) {
+  send_buf_.emplace_back(msg, cb);
 }
-void TcpSession::Send(const String& msg) {
-  return Send(mnet::MakeVecBuf(msg));
+void TcpSession::Send(const String& msg, std::function<void()> cb) {
+  return Send(mnet::MakeVecBuf(msg), std::move(cb));
 }
 void TcpSession::Wait() {
-  io_thread_ = std::thread([this]() {
-    io_.run();
-  });
   io_thread_.join();
 }
 void TcpSession::SetAfterMsgHandler(std::function<void()> handler) {
   after_msg_handler_ = std::move(handler);
 }
 void TcpSession::HandleRead(boost::system::error_code ec, size_t bytes_len) {
+  if (ec.failed()) {
+    fmt::println("read failed");
+    return;
+  }
   if (msg_handler_) {
     auto send_back_msg = msg_handler_(read_buf_.PopFront(std::numeric_limits<u64>::max()));
     if (!send_back_msg.empty()) {
-      sockfd_->async_write_some(asio::buffer(send_back_msg.data(), send_back_msg.size()),
-                                [this](boost::system::error_code ec, u64 bytes_transferred) {
-                                  if (ec.failed()) {
-                                    fmt::println("write falied");
-                                  }
-                                  if (after_msg_handler_) {
-                                    after_msg_handler_();
-                                  }
-                                });
+      this->Send(send_back_msg, after_msg_handler_);
     }
   }
-  StartRecv();
+  StartSend();
 }
 void TcpSession::Start() {
+  io_thread_ = std::thread([this]() {
+    io_.run();
+  });
   sockfd_->async_connect(asio::ip::tcp::endpoint(asio::ip::address::from_string(host_), port_),
                          [this](boost::system::error_code ec) {
                            HandleConn(ec);
